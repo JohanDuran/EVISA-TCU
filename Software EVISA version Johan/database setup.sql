@@ -3,7 +3,6 @@ use evisadb;
 
 CREATE TABLE locations(
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	country VARCHAR(30) NOT NULL DEFAULT 'Costa Rica',
 	province VARCHAR(30) NOT NULL ,
 	canton VARCHAR(30) NOT NULL ,
 	district VARCHAR(30) NOT NULL ,
@@ -26,8 +25,8 @@ CREATE TABLE people(
 	email VARCHAR(40),	
 	facebook VARCHAR(100),	
 	address VARCHAR(150),
-	ebais VARCHAR(30),
-	FOREIGN KEY location_id_fk (location_id) REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE
+	medical_center VARCHAR(30),
+	FOREIGN KEY locations_id_fk (location_id) REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -43,15 +42,15 @@ CREATE TABLE datasets(
 	screening_weight DOUBLE,
 	screening_height DOUBLE,
 	bmi	DOUBLE,
-	bmi_sort VARCHAR(30),
+	bmi_clasification VARCHAR(30),
 	ia_score INT,
-	sort BOOLEAN,
+	clasification BOOLEAN,
 	screening_date date,
 	observation VARCHAR(150),
 	prefered_schedule VARCHAR(100),
 	elegible BOOLEAN,
     UNIQUE KEY  (person_id, year),
-	FOREIGN KEY person_id_fk (person_id) REFERENCES people(id) ON DELETE CASCADE ON UPDATE CASCADE
+	FOREIGN KEY people_id_fk (person_id) REFERENCES people(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -63,18 +62,41 @@ CREATE TABLE groups(
 	schedule VARCHAR(100),
 	space INT,
     UNIQUE KEY  (location_id, name, year),
-	FOREIGN KEY location_id_fk (location_id) REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE
+	FOREIGN KEY locations_id_fk (location_id) REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+
+CREATE TABLE sessions(
+	id INT  AUTO_INCREMENT PRIMARY KEY,
+	group_id INT NOT NULL ,
+	goals BOOLEAN,
+	opening BOOLEAN,
+	feedback BOOLEAN,
+	development BOOLEAN,
+	check_experience BOOLEAN,
+	address VARCHAR(50),
+	duration INT,
+	FOREIGN KEY groups_id_fk (group_id) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE people_sessions(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	session_id INT NOT NULL ,
+	person_id INT NOT NULL ,
+    UNIQUE KEY  (session_id, person_id),
+	FOREIGN KEY people_id_fk (person_id) REFERENCES people(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY sessions_id_fk (session_id) REFERENCES sessions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 
 CREATE TABLE people_groups(
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	location_id INT NOT NULL ,
+	person_id INT NOT NULL ,
 	group_id INT NOT NULL ,
-    UNIQUE KEY  (location_id, group_id),
-	FOREIGN KEY location_id_fk (location_id) REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE,
-	FOREIGN KEY group_id_fk (group_id) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE
+    UNIQUE KEY  (person_id, group_id),
+	FOREIGN KEY people_id_fk (person_id) REFERENCES people(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY groups_id_fk (group_id) REFERENCES groups(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -83,7 +105,7 @@ CREATE TABLE people_datasets(
 	dataset_id INT NOT NULL ,
 	person_id INT NOT NULL ,
     UNIQUE KEY  (dataset_id, person_id),
-	FOREIGN KEY dataset_id_fk (dataset_id) REFERENCES datasets(id) ON DELETE CASCADE ON UPDATE CASCADE,
-	FOREIGN KEY person_id_fk (person_id) REFERENCES people(id) ON DELETE CASCADE ON UPDATE CASCADE
+	FOREIGN KEY datasets_id_fk (dataset_id) REFERENCES datasets(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY people_id_fk (person_id) REFERENCES people(id) ON DELETE CASCADE ON UPDATE CASCADE
 
 );
